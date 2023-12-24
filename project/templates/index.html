@@ -10,11 +10,18 @@
 <body>
     <h1>WebCam Viewer</h1>
 
+    <form action="/capture" method="post">
+        <button type="submit">Сделать скриншот</button>
+    </form>
+    
     <h2>Список изображений:</h2>
     <ul>
         {% for image in image_list %}
             <li>
                 <a href="/image/{{ image }}" target="_blank">{{ image }}</a>
+                <form action="/delete/{{ image }}" method="post" style="display:inline;">
+                    <button type="submit">Удалить</button>
+                </form>
             </li>
         {% endfor %}
     </ul>
