@@ -67,5 +67,35 @@ def index():
 def get_image(filename):
     return send_file(os.path.join(app.config['UPLOAD_FOLDER'], filename), as_attachment=True)
 
+# Обработчик для создания скриншота
+@app.route('/capture', methods=['POST'])
+def capture():
+    global image_list
+    ret, frame = camera.read()
+    if ret:
+        GPIO.OUTPUT(PORT, GPIO.LOW)
+        time.sleep(5)
+        GPIO.output(PORT, GPIO.HIGH)
+        # Генерируем уникальное имя для изображения
+        filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}.png"
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+        # Сохраняем изображение
+        cv2.imwrite(filepath, frame)
+        image_list.append(filename)
+
+    return render_template('index.html', image_list=image_list)
+
+# Обработчик для удаления изображения
+@app.route('/delete/<filename>', methods=['POST'])
+def delete_image(filename):
+    global image_list
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    if os.path.exists(filepath):
+        os.remove(filepath)
+        image_list.remove(filename)
+
+    return redirect('/')
+
 if __name__ == '__main__':
     app.run(debug=True)
