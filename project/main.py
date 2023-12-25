@@ -3,7 +3,7 @@ from flask import Flask, render_template, send_file, request, redirect
 import cv2
 import os
 from datetime import datetime
-from threading import Thread
+from multiprocessing import Process
 import time
 
 
@@ -47,10 +47,10 @@ def capture_images():
                 cv2.imwrite(filepath, frame)
                 image_list.append(filename)
 
-# Запуск потока для захвата изображений
-capture_thread = Thread(target=capture_images)
-capture_thread.daemon = True
-capture_thread.start()
+## Запуск потока для захвата изображений
+#capture_thread = Thread(target=capture_images)
+#capture_thread.daemon = True
+#capture_thread.start()
 
 # Обработчик для загрузки изображения с камеры
 @app.route('/upload', methods=['POST'])
@@ -98,4 +98,7 @@ def delete_image(filename):
     return redirect('/')
 
 if __name__ == '__main__':
+    capture_process = Process(target=capture_images)
+    capture_process.daemon = True
+    capture_process.start()
     app.run(debug=True)
